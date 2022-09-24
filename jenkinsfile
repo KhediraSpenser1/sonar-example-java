@@ -11,7 +11,7 @@ pipeline {
         }
         stage('Build'){
             steps {
-                sh 'mvn clean install'
+                sh 'mvn clean package'
                 junit 'target/surefire-reports/**/*.xml'
             }
         }
@@ -19,6 +19,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SONARQUBE') {
                     sh "${tool("SONARQUBE")}/bin/sonar-scanner"
+                    sh 'mvn sonar:sonar'
                     sh "${scannerHome}/bin/SONARQUBE \
                     -D sonar.login=admin \
                     -D sonar.password=admin \
