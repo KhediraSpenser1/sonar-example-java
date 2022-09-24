@@ -11,7 +11,7 @@ pipeline {
                 withSonarQubeEnv('SONARQUBE') {
                     // Optionally use a Maven environment you've configured already
                     withMaven(maven:'MAVEN') {
-                        sh 'mvn clean package admin:admin'
+                        sh 'mvn clean package sonar:sonar'
                         sh "${tool("SONARQUBE ")}/bin/sonar-scanner -Dsonar.projectKey=sonar-example-java -Dsonar.projectName=sonar-example-java"
                     }
                 }
