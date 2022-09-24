@@ -28,13 +28,5 @@ pipeline {
                 }
             }
         }
-        // stage
-        post {
-            always {
-                emailext to: "israel.noah29@gmail.com",
-                subject: "Test Email",
-                body: "Test"
-            }
-        }
     }
 }
