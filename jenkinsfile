@@ -11,15 +11,21 @@ pipeline {
         }
         stage('Build'){
             steps {
-                sh 'mvn clean install -Dmaven.test.skip=true'
+                sh 'mvn clean install'
                 junit 'target/surefire-reports/**/*.xml'
             }
         }
         stage('SonarQube analysis') {
             steps {
-                def sonarqubeScannerHome = tool name : 'SONARQUBE', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                withCredentials([string(credentialsId: 'sonarqubetoken', variable: 'sonarLogin')]) {
-                    sh "${sonarqubeScannerHome}/bin/SONARQUBE -X -Dsonar.host.url=http://34.125.81.46:9000/ -Dsonar.projectKey=sonar-example-java -Dsonar.projectName=sonar-example-java"
+                def scannerHome = tool 'SONARQUBE'
+                withSonarQubeEnv('SONARQUBE') {
+                    sh "${scannerHome}/bin/SONARQUBE \
+                    -D sonar.login=admin \
+                    -D sonar.password=admin \
+                    -D sonar.projectName=sonar-example-java \
+                    -D sonar.projectKey=sonar-example-java \
+                    -D sonar.exclusions=vendor/**,resources/**,**/*.java \
+                    -D sonar.host.url=http://http://34.125.81.46:9000/"
                 }
             }
         }
