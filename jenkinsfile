@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout github credential') {
+            steps {
+                git url: 'https://github.com/KhediraSpenser1/sonar-example-java.git'
+            }
+        }
+        stage('build && SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('SONARQUBE') {
+                    // Optionally use a Maven environment you've configured already
+                    withMaven(maven:'MAVEN') {
+                        sh 'mvn clean package admin:admin'
+                        sh "${tool("SONARQUBE ")}/bin/sonar-scanner -Dsonar.projectKey=sonar-example-java -Dsonar.projectName=sonar-example-java"
+                    }
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                script {
+                    def qualitygate = waitForQualityGate()
+                    sleep(10)
+                    if (qualitygate.status != "OK") {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
+        // stage
+        post{
+            always{
+                emailext to: "israel.noah29@gmail.com",
+                subject: "Test Email",
+                body: "Test"
+            }
+        }
+    }
+}
